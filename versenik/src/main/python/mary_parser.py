@@ -6,9 +6,8 @@ def parse(infilename, outfilename):
 
 	tree = etree.parse(infilename)
 	root = tree.getroot()
-	sentence = root[0][0]
-	for token in sentence:
-		if 'ph' in token.keys():
-			outfile.write(token.attrib['ph'] + '\n')
-
-parse('example.xml','parsed_example.txt')
+	sentences = root[0]
+	for sentence in sentences:
+		for token in sentence:
+			if 'ph' in token.keys():
+				outfile.write(token.attrib['ph'] + '\n')
