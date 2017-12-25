@@ -16,8 +16,8 @@ def to_phon(text):
         for token in sent('t'):
             try:
                 yield dict(text=token.text.strip(),
-                            pos=token['pos'],
-                            phonetics=token['ph'])
+                           pos=token['pos'],
+                           phonetics=token['ph'])
             except:
                 pass
 

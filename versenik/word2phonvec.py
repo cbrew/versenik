@@ -11,8 +11,9 @@ class Word2Phonvec(object):
         self.semantic_model = api.load('glove-wiki-gigaword-200')
 
     def to_vectors(self, word):
+        toks = to_phon(word)
         return np.array([self.model.wv[p]
-                         for tok in to_phon(word)
+                         for tok in toks
                          for p in tok['phonetics'].split()])
 
     def to_vector(self, word):
@@ -21,7 +22,7 @@ class Word2Phonvec(object):
             return None
         return vectors.mean(axis=0)
 
-    def compare(self, word1, word2):
+    def distance(self, word1, word2):
         if isinstance(word1, str):
             vec1 = self.to_vector(word1)
         else:
@@ -30,6 +31,11 @@ class Word2Phonvec(object):
         return sp.cosine(vec1, self.to_vector(word2))
 
     def suggest(self, word, topn=100):
+        """
+        The suggestion mode uses phonemic embedding
+        distance to select from the candidates provided by
+        the semantic model.
+        """
         vec = self.to_vector(word)
         words = self.semantic_model.most_similar(word,
                                                  topn=topn)
@@ -40,6 +46,7 @@ class Word2Phonvec(object):
                 vecs.append((w, v, semscore))
 
         return sorted([
-                (sp.cosine(vec,v), semscore, w)
+                (1-sp.cosine(vec, v), semscore, w)
                 for (w, v, semscore) in vecs
-                if v is not None])
+                if v is not None],
+                      reverse=True)
